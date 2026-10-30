@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="32" height="32">
+  <title>HEXA Favicon</title>
+  <style>
+    :root { fill: #111215; }
+    @media (prefers-color-scheme: dark) {
+      :root { fill: #FFFFFF; }
+    }
+  </style>
+  <!-- Left Hexagonal Pillar -->
+  <path d="M 52 82 L 104 52 L 104 204 L 52 174 Z" />
+
+  <!-- Right Hexagonal Pillar -->
+  <path d="M 152 52 L 204 82 L 204 174 L 152 204 Z" />
+
+  <!-- Cherry MX Switch Stem in Electric Cobalt -->
+  <path d="M 120 104 H 136 V 120 H 152 V 136 H 136 V 152 H 120 V 136 H 104 V 120 H 120 Z" fill="#1E40AF" />
+</svg>
