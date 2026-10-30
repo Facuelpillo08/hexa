@@ -4,7 +4,6 @@ import { CustomizerProvider } from './context/CustomizerContext';
 import CustomCursor from './components/core/CustomCursor';
 import Navbar from './components/layout/Navbar';
 import HeroConfiguratorSection from './components/hero/HeroConfiguratorSection';
-import TelemetryRibbon from './components/layout/TelemetryRibbon';
 import SpecsBentoGrid from './components/specs/SpecsBentoGrid';
 import Footer from './components/layout/Footer';
 
@@ -26,9 +25,6 @@ export default function App() {
           <main>
             {/* 01 & 02 // Unified Hero & Interactive Configurator Stage */}
             <HeroConfiguratorSection />
-
-            {/* Continuous Swiss Telemetry Ribbon */}
-            <TelemetryRibbon />
 
             {/* 03 // Engineering Specs Bento Grid */}
             <SpecsBentoGrid />
