@@ -114,6 +114,7 @@ export default function SpecsBentoGrid() {
             duration: 0.8,
             stagger: 0.12,
             ease: 'power3.out',
+            force3D: true,
             scrollTrigger: {
               trigger: headerRef.current,
               start: 'top 88%',
@@ -134,6 +135,7 @@ export default function SpecsBentoGrid() {
             duration: 0.85,
             stagger: 0.12,
             ease: 'power3.out',
+            force3D: true,
             scrollTrigger: {
               trigger: tier1Ref.current,
               start: 'top 85%',
@@ -153,6 +155,7 @@ export default function SpecsBentoGrid() {
             opacity: 1,
             duration: 0.85,
             ease: 'power3.out',
+            force3D: true,
             scrollTrigger: {
               trigger: tier2Ref.current,
               start: 'top 85%',
@@ -173,6 +176,7 @@ export default function SpecsBentoGrid() {
             duration: 0.75,
             stagger: 0.08,
             ease: 'power3.out',
+            force3D: true,
             scrollTrigger: {
               trigger: tier3Ref.current,
               start: 'top 85%',
@@ -188,7 +192,7 @@ export default function SpecsBentoGrid() {
           trigger: sectionRef.current,
           start: 'top bottom',
           end: 'bottom top',
-          scrub: 1.0,
+          scrub: true,
         },
         y: 80,
         ease: 'none',

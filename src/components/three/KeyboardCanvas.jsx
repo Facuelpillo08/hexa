@@ -89,9 +89,9 @@ function StudioGroundShadow() {
   useFrame((_, delta) => {
     if (!shadowGroup.current) return;
     const progress = scrollProgressRef?.current ?? 0;
-    const scrollMap = THREE.MathUtils.clamp((progress - 0.03) / 0.82, 0, 1);
-    const pOrbit = smoothInterval(scrollMap, 0.04, 0.70);
-    const pPan = smoothInterval(scrollMap, 0.48, 0.95);
+    const scrollMap = THREE.MathUtils.clamp((progress - 0.02) / 0.90, 0, 1);
+    const pOrbit = smoothInterval(scrollMap, 0.04, 0.76);
+    const pPan = smoothInterval(scrollMap, 0.65, 0.96);
 
     // Dynamic ground shadow Y tracking:
     // On mobile:
@@ -205,17 +205,35 @@ export default function KeyboardCanvas({
 
   useEffect(() => {
     if (!wrapperRef.current) return;
+    let timer = null;
+
     const observer = new IntersectionObserver(
       (entries) => {
         const entry = entries[0];
-        if (entry) {
-          setIsVisible(entry.isIntersecting);
+        if (!entry) return;
+
+        if (entry.isIntersecting) {
+          if (timer) clearTimeout(timer);
+          setIsVisible(true);
+        } else {
+          // Put the canvas to sleep only during browser idle periods after scrolling has completely stopped
+          if (timer) clearTimeout(timer);
+          timer = setTimeout(() => {
+            if ('requestIdleCallback' in window) {
+              window.requestIdleCallback(() => setIsVisible(false), { timeout: 2000 });
+            } else {
+              setIsVisible(false);
+            }
+          }, 800);
         }
       },
-      { threshold: 0 }
+      { threshold: 0, rootMargin: '300px' }
     );
     observer.observe(wrapperRef.current);
-    return () => observer.disconnect();
+    return () => {
+      if (timer) clearTimeout(timer);
+      observer.disconnect();
+    };
   }, []);
 
   return (

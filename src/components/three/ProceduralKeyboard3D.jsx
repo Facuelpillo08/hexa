@@ -506,22 +506,22 @@ export default function ProceduralKeyboard3D({
     // Read scroll progress directly from ref (zero React re-renders on scroll)
     const progress = scrollProgressRef?.current ?? 0;
 
-    // Staggered Cinematic Disassembly Sequence normalized across scroll (responsive docking by progress ~ 0.82)
-    const scrollMap = THREE.MathUtils.clamp((progress - 0.03) / 0.82, 0, 1);
+    // Staggered Cinematic Disassembly Sequence normalized across scroll (docking by progress ~ 0.92)
+    const scrollMap = THREE.MathUtils.clamp((progress - 0.02) / 0.90, 0, 1);
 
     // Channel 1: Spatial Progress (always driven continuously by scroll, never frozen by override)
-    // Responsive single-stage damping: lambda = 10.0 provides silky, immediate tracking without sluggish dragging
+    // Silky smooth damping: lambda = 8.5 preserves the original majestic, unaccelerated keyboard descent
     currentScrollAnim.current = THREE.MathUtils.damp(
       currentScrollAnim.current,
       scrollMap,
-      10.0,
+      8.5,
       delta
     );
     const sScroll = currentScrollAnim.current;
 
     // Channel 2: Physical Layer Elevation (Keycaps, Switches, Chassis, Knob)
-    // Only allow manual layer override when docked in the configurator (progress >= 0.50)
-    const isManualOverride = explodedOverride !== null && progress >= 0.50;
+    // Only allow manual layer override when docked in the configurator (progress >= 0.70)
+    const isManualOverride = explodedOverride !== null && progress >= 0.70;
     const targetExploded =
       progress < 0.04
         ? 0.0
@@ -532,35 +532,35 @@ export default function ProceduralKeyboard3D({
     currentExploded.current = THREE.MathUtils.damp(
       currentExploded.current,
       targetExploded,
-      10.0,
+      8.5,
       delta
     );
 
     const sLayers = currentExploded.current;
 
     // Staggered Layer Phase Curves (zero-gravity expansion during orbit):
-    // 1. Keycaps & Rotary Knob lift first (Phase 1: sLayers 0.04 -> 0.40)
-    const pKeycaps = smoothInterval(sLayers, 0.04, 0.40);
-    const pKnob = smoothInterval(sLayers, 0.04, 0.40);
+    // 1. Keycaps & Rotary Knob lift first (Phase 1: sLayers 0.04 -> 0.44)
+    const pKeycaps = smoothInterval(sLayers, 0.04, 0.44);
+    const pKnob = smoothInterval(sLayers, 0.04, 0.44);
 
-    // 2. Switches Plate FR4 & Gaskets extract second (Phase 2: sLayers 0.16 -> 0.58)
-    const pSwitches = smoothInterval(sLayers, 0.16, 0.58);
+    // 2. Switches Plate FR4 & Gaskets extract second (Phase 2: sLayers 0.16 -> 0.64)
+    const pSwitches = smoothInterval(sLayers, 0.16, 0.64);
 
-    // 3. CNC Aluminum Chassis drops deeply and tilts (Phase 3: sLayers 0.28 -> 0.82)
-    const pBase = smoothInterval(sLayers, 0.28, 0.82);
+    // 3. CNC Aluminum Chassis drops deeply and tilts (Phase 3: sLayers 0.28 -> 0.86)
+    const pBase = smoothInterval(sLayers, 0.28, 0.86);
 
     // 4. Cinematic 360° Orbital Turn (starts at Hero angle, completes full orbit in center):
-    const pOrbit = smoothInterval(sScroll, 0.04, 0.70);
+    const pOrbit = smoothInterval(sScroll, 0.04, 0.76);
     const targetRotY = -0.46 + pOrbit * Math.PI * 2;
 
     // Pitch tilt during orbit so the bottom chassis & brass weight face camera cleanly at 180°:
     const backsideTilt = Math.sin(pOrbit * Math.PI) * 0.88;
-    const pDockRot = smoothInterval(sScroll, 0.48, 0.95);
+    const pDockRot = smoothInterval(sScroll, 0.65, 0.96);
     const targetRotX = 0.48 - backsideTilt + pDockRot * 0.04;
     const targetRotZ = THREE.MathUtils.lerp(0.11, 0.12, pDockRot);
 
     // 5. Lateral Pan towards left column for configurator docking (perfect lockstep with UI glide):
-    const pPan = smoothInterval(sScroll, 0.48, 0.95);
+    const pPan = smoothInterval(sScroll, 0.65, 0.96);
 
     // Responsive scaling:
     // Keyboard native width is ~8.5 units in 3D space.

@@ -60,7 +60,7 @@ export default function HeroConfiguratorSection() {
       setScrollProgress(progress);
 
       // Nav visibility toggle (Zero-render direct DOM transform: no React context re-renders during scroll)
-      const shouldHideNav = progress > 0.05 && progress < 0.65;
+      const shouldHideNav = progress > 0.04 && progress < 0.85;
       const navEl = document.getElementById('main-navbar');
       if (navEl) {
         if (shouldHideNav) {
@@ -75,14 +75,14 @@ export default function HeroConfiguratorSection() {
       }
 
       // Auto-reset manual exploded override when scrolling back towards hero
-      if (progress < 0.50 && explodedOverride !== null) {
+      if (progress < 0.55 && explodedOverride !== null) {
         setExplodedOverride(null);
       }
 
-      // Hero fades out gently between 0.02 and 0.12
-      const heroRaw = Math.max(0, 1 - Math.max(0, (progress - 0.02) / 0.10));
+      // Hero fades out gently between 0.02 and 0.10
+      const heroRaw = Math.max(0, 1 - Math.max(0, (progress - 0.02) / 0.08));
       const heroOpacity = heroRaw * heroRaw * (3 - 2 * heroRaw);
-      const heroVisible = progress < 0.14;
+      const heroVisible = progress < 0.12;
 
       if (heroContentRef.current) {
         heroContentRef.current.style.opacity = heroOpacity;
@@ -100,10 +100,10 @@ export default function HeroConfiguratorSection() {
         n75Ref.current.style.transform = `translate3d(${progress * 360}px, 0, 0)`;
       }
 
-      // Configurator glides in synchronously between 0.52 and 0.82
-      const configRaw = Math.min(1, Math.max(0, (progress - 0.52) / 0.30));
+      // Configurator glides in synchronously between 0.70 and 0.90
+      const configRaw = Math.min(1, Math.max(0, (progress - 0.70) / 0.20));
       const configOpacity = configRaw * configRaw * (3 - 2 * configRaw);
-      const configVisible = progress > 0.48;
+      const configVisible = progress > 0.65;
       const configTranslateY = (1 - configOpacity) * 20;
 
       if (configOverlayRef.current) {
@@ -165,10 +165,10 @@ export default function HeroConfiguratorSection() {
     <section
       id="configurador"
       ref={containerRef}
-      className="relative bg-[#EDEAE4] min-h-[175vh]"
+      className="relative bg-[#EDEAE4] min-h-[480vh]"
     >
-      {/* Sticky 100vh Viewport Stage */}
-      <div className="sticky top-0 h-screen w-full flex flex-col justify-between overflow-hidden">
+      {/* Sticky 100vh Viewport Stage with Hardware-Accelerated Compositor Layer */}
+      <div className="sticky top-0 h-screen w-full flex flex-col justify-between overflow-hidden will-change-transform transform-gpu">
         {/* Subtle Architectural Square Grid */}
         <div
           className="absolute inset-0 pointer-events-none z-0"
