@@ -1,6 +1,6 @@
 import React, { useRef, useMemo, useState, useCallback, useEffect } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
-import { RoundedBox, Cylinder, Html } from '@react-three/drei';
+import { RoundedBox, Cylinder } from '@react-three/drei';
 import * as THREE from 'three';
 import { toCreasedNormals } from 'three-stdlib';
 import { playSwitchSound } from '../../utils/soundEngine';
@@ -399,9 +399,6 @@ export default function ProceduralKeyboard3D({
   const isMobile = size.width < 768;
   const isSmallMobile = size.width < 440;
 
-  const [labelsVisible, setLabelsVisible] = useState(false);
-  const [rearTelemetryVisible, setRearTelemetryVisible] = useState(false);
-
   const rootGroup = useRef();
   const baseGroup = useRef();
   const switchesGroup = useRef();
@@ -513,11 +510,11 @@ export default function ProceduralKeyboard3D({
     const scrollMap = THREE.MathUtils.clamp((progress - 0.03) / 0.68, 0, 1);
 
     // Channel 1: Spatial Progress (always driven continuously by scroll, never frozen by override)
-    // Responsive damping: lambda = 8.5 provides silky, immediate tracking without sluggish dragging
+    // Responsive single-stage damping: lambda = 10.0 provides silky, immediate tracking without sluggish dragging
     currentScrollAnim.current = THREE.MathUtils.damp(
       currentScrollAnim.current,
       scrollMap,
-      8.5,
+      10.0,
       delta
     );
     const sScroll = currentScrollAnim.current;
@@ -535,7 +532,7 @@ export default function ProceduralKeyboard3D({
     currentExploded.current = THREE.MathUtils.damp(
       currentExploded.current,
       targetExploded,
-      8.5,
+      10.0,
       delta
     );
 
@@ -553,17 +550,17 @@ export default function ProceduralKeyboard3D({
     const pBase = smoothInterval(sLayers, 0.28, 0.82);
 
     // 4. Cinematic 360° Orbital Turn (starts at Hero angle, completes full orbit in center):
-    const pOrbit = smoothInterval(sScroll, 0.04, 0.72);
+    const pOrbit = smoothInterval(sScroll, 0.04, 0.70);
     const targetRotY = -0.46 + pOrbit * Math.PI * 2;
 
     // Pitch tilt during orbit so the bottom chassis & brass weight face camera cleanly at 180°:
     const backsideTilt = Math.sin(pOrbit * Math.PI) * 0.88;
-    const pDockRot = smoothInterval(sScroll, 0.58, 0.88);
+    const pDockRot = smoothInterval(sScroll, 0.55, 0.95);
     const targetRotX = 0.48 - backsideTilt + pDockRot * 0.04;
     const targetRotZ = THREE.MathUtils.lerp(0.11, 0.12, pDockRot);
 
     // 5. Lateral Pan towards left column for configurator docking (perfect lockstep with UI glide):
-    const pPan = smoothInterval(sScroll, 0.58, 0.88);
+    const pPan = smoothInterval(sScroll, 0.55, 0.95);
 
     // Responsive scaling:
     // Keyboard native width is ~8.5 units in 3D space.
@@ -588,45 +585,13 @@ export default function ProceduralKeyboard3D({
       ? THREE.MathUtils.lerp(0.20, 1.05, pPan)
       : THREE.MathUtils.lerp(-0.02, -0.36, pPan);
 
-    // Visibility toggles:
-    // Midpoint Rear Telemetry: ONLY on desktop when back is directly facing camera (pOrbit between 0.42 and 0.58)
-    const isBackFacing = !isMobile && pOrbit >= 0.42 && pOrbit <= 0.58;
-    if (isBackFacing && !rearTelemetryVisible) {
-      setRearTelemetryVisible(true);
-    } else if (!isBackFacing && rearTelemetryVisible) {
-      setRearTelemetryVisible(false);
-    }
-
-    // Configurator Hotspots: ONLY on desktop screens (when sScroll > 0.78)
-    // On mobile, hotspots are omitted to prevent 3D HTML DOM thrashing and visual overlap
-    if (!isMobile) {
-      if (sScroll > 0.78 && !labelsVisible) {
-        setLabelsVisible(true);
-      } else if (sScroll <= 0.78 && labelsVisible) {
-        setLabelsVisible(false);
-      }
-    } else if (labelsVisible) {
-      setLabelsVisible(false);
-    }
-
-    currentRotX.current = THREE.MathUtils.damp(currentRotX.current, targetRotX, 9.0, delta);
-    currentRotY.current = THREE.MathUtils.damp(currentRotY.current, targetRotY, 9.0, delta);
-    currentRotZ.current = THREE.MathUtils.damp(currentRotZ.current, targetRotZ, 9.0, delta);
-    currentPosX.current = THREE.MathUtils.damp(currentPosX.current, targetPosX, 9.0, delta);
-    currentPosY.current = THREE.MathUtils.damp(currentPosY.current, targetPosY, 9.0, delta);
-    currentScale.current = THREE.MathUtils.damp(currentScale.current, targetScale, 9.0, delta);
-
     if (rootGroup.current) {
-      rootGroup.current.rotation.x = currentRotX.current;
-      rootGroup.current.rotation.y = currentRotY.current;
-      rootGroup.current.rotation.z = currentRotZ.current;
-      rootGroup.current.position.x = currentPosX.current;
-      rootGroup.current.position.y = currentPosY.current;
-      rootGroup.current.scale.set(
-        currentScale.current,
-        currentScale.current,
-        currentScale.current
-      );
+      rootGroup.current.rotation.x = targetRotX;
+      rootGroup.current.rotation.y = targetRotY;
+      rootGroup.current.rotation.z = targetRotZ;
+      rootGroup.current.position.x = targetPosX;
+      rootGroup.current.position.y = targetPosY;
+      rootGroup.current.scale.set(targetScale, targetScale, targetScale);
     }
 
     // Layer 1: Base drops down deeply and tilts with dramatic angle
@@ -769,58 +734,6 @@ export default function ProceduralKeyboard3D({
             <meshStandardMaterial color="#111215" roughness={0.95} />
           </mesh>
         ))}
-
-        {/* Midpoint Orbital Telemetry Callouts (Exposed when base rear faces camera) */}
-        {rearTelemetryVisible && (
-          <group position={[0, -0.28, -1.9]}>
-            {/* Callout 1: Brass Weight Plate */}
-            <Html position={[0, -0.45, -0.1]} center distanceFactor={8.5}>
-              <div className="flex items-center gap-2 bg-[#111317]/95 text-white border border-[#B89758] px-3 py-1 font-mono text-[10px] shadow-2xl animate-fade-in pointer-events-none whitespace-nowrap">
-                <span className="w-1.5 h-1.5 bg-[#B89758] inline-block shrink-0"></span>
-                <span className="font-bold">01 // CONTRAPESO DE LATÓN CNC 850G</span>
-              </div>
-            </Html>
-
-            {/* Callout 2: USB-C CNC Port */}
-            <Html position={[0, 0.35, -0.1]} center distanceFactor={8.5}>
-              <div className="flex items-center gap-2 bg-[#111317]/95 text-white border border-[#C7CBD1] px-2.5 py-1 font-mono text-[9px] shadow-2xl animate-fade-in pointer-events-none whitespace-nowrap">
-                <span className="w-1.5 h-1.5 bg-[#1E40AF] inline-block shrink-0"></span>
-                <span className="font-semibold">02 // PUERTO USB-C ALTA VELOCIDAD</span>
-              </div>
-            </Html>
-
-            {/* Callout 3: Torx T6 Mil-Spec Screws */}
-            <Html position={[-3.6, -0.1, 0.1]} center distanceFactor={8.5}>
-              <div className="flex items-center gap-2 bg-[#111317]/95 text-white border border-[#C7CBD1] px-2.5 py-1 font-mono text-[9px] shadow-2xl animate-fade-in pointer-events-none whitespace-nowrap">
-                <span className="w-1.5 h-1.5 bg-[#22C55E] inline-block shrink-0"></span>
-                <span className="font-semibold">03 // TORNILLOS TORX T6 INOXIDABLE</span>
-              </div>
-            </Html>
-          </group>
-        )}
-
-        {labelsVisible && (
-          <Html position={[2.4, -0.25, 1.8]} center distanceFactor={8.5}>
-            <div className="font-mono select-none">
-              {/* Trigger Pulse Pin */}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setActiveHotspot(activeHotspot === 'base' ? null : 'base');
-                }}
-                className={`flex items-center gap-2 px-3 py-1.5 transition-all duration-200 cursor-pointer shadow-tech border ${activeHotspot === 'base'
-                  ? 'bg-[#111215] text-white border-[#111215] ring-2 ring-[#1E40AF]/40'
-                  : 'bg-white/95 text-[#111215] border-[#C7CBD1] hover:border-[#111215]'
-                  }`}
-              >
-                <span className="w-2 h-2 rounded-full bg-[#1E40AF] animate-ping inline-block shrink-0" />
-                <span className="font-bold text-[11px] whitespace-nowrap">01 // CHASIS DE ALUMINIO</span>
-                <span className="text-[10px] text-[#8C939E] font-normal">{currentBase.name}</span>
-                <span className="text-[9px] text-[#1E40AF] font-bold">↗</span>
-              </button>
-            </div>
-          </Html>
-        )}
       </group>
 
       {/* =========================================================================
@@ -864,52 +777,6 @@ export default function ProceduralKeyboard3D({
           <meshStandardMaterial color="#111214" roughness={0.9} />
         </mesh>
 
-        {labelsVisible && (
-          <group position={[2.8, 0.28, -1.25]}>
-            <mesh position={[0, 0, 0]}>
-              <boxGeometry args={[0.38, 0.22, 0.38]} />
-              <meshPhysicalMaterial
-                color="#3B4048"
-                transparent
-                opacity={0.85}
-                roughness={0.12}
-                transmission={0.6}
-              />
-            </mesh>
-            <mesh position={[0, 0.13, 0]}>
-              <boxGeometry args={[0.15, 0.16, 0.15]} />
-              <meshStandardMaterial
-                color={currentSwitch.stemColor}
-                roughness={0.2}
-                metalness={0.1}
-              />
-            </mesh>
-
-            <Html position={[-0.8, 0.45, -0.4]} center distanceFactor={8.5}>
-              <div className="font-mono select-none">
-                {/* Trigger Pulse Pin */}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setActiveHotspot(activeHotspot === 'switches' ? null : 'switches');
-                  }}
-                  className={`flex items-center gap-2 px-3 py-1.5 transition-all duration-200 cursor-pointer shadow-tech border ${activeHotspot === 'switches'
-                    ? 'bg-[#111215] text-white border-[#111215] ring-2 ring-[#1E40AF]/40'
-                    : 'bg-white/95 text-[#111215] border-[#C7CBD1] hover:border-[#111215]'
-                    }`}
-                >
-                  <span
-                    className="w-2 h-2 rounded-full inline-block animate-pulse shrink-0"
-                    style={{ backgroundColor: currentSwitch.stemColor }}
-                  />
-                  <span className="font-bold text-[11px] whitespace-nowrap">03 // SWITCHES HOT-SWAP</span>
-                  <span className="text-[10px] text-[#8C939E] font-normal">{currentSwitch.name}</span>
-                  <span className="text-[9px] text-[#1E40AF] font-bold">↗</span>
-                </button>
-              </div>
-            </Html>
-          </group>
-        )}
       </group>
 
       {/* =========================================================================
@@ -940,31 +807,6 @@ export default function ProceduralKeyboard3D({
           );
         })}
 
-        {/* 3D Hotspot for Keycaps */}
-        {labelsVisible && (
-          <Html position={[-1.2, 0.45, 0.2]} center distanceFactor={8.5}>
-            <div className="font-mono select-none">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setActiveHotspot(activeHotspot === 'keycaps' ? null : 'keycaps');
-                }}
-                className={`flex items-center gap-2 px-3 py-1.5 transition-all duration-200 cursor-pointer shadow-tech border ${activeHotspot === 'keycaps'
-                  ? 'bg-[#111215] text-white border-[#111215] ring-2 ring-[#1E40AF]/40'
-                  : 'bg-white/95 text-[#111215] border-[#C7CBD1] hover:border-[#111215]'
-                  }`}
-              >
-                <span
-                  className="w-2 h-2 rounded-full inline-block shrink-0"
-                  style={{ backgroundColor: currentKeycaps.accentColor }}
-                />
-                <span className="font-bold text-[11px] whitespace-nowrap">02 // TECLAS PBT</span>
-                <span className="text-[10px] text-[#8C939E] font-normal">{currentKeycaps.name}</span>
-                <span className="text-[9px] text-[#1E40AF] font-bold">↗</span>
-              </button>
-            </div>
-          </Html>
-        )}
       </group>
 
       {/* =========================================================================
@@ -995,34 +837,6 @@ export default function ProceduralKeyboard3D({
           <meshStandardMaterial color="#121316" metalness={0.9} roughness={0.1} />
         </mesh>
       </group>
-
-      {/* 3D Hotspot for Rotary Knob - Fixed anchor outside knobGroup so it stays 100% stationary */}
-      {labelsVisible && (
-        <group position={[2.7, 0.40, -1.25]}>
-          <Html center distanceFactor={8.5}>
-            <div className="font-mono select-none">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setActiveHotspot(activeHotspot === 'knob' ? null : 'knob');
-                }}
-                className={`flex items-center gap-2 px-3 py-1.5 transition-all duration-200 cursor-pointer shadow-tech border ${activeHotspot === 'knob'
-                  ? 'bg-[#111215] text-white border-[#111215] ring-2 ring-[#1E40AF]/40'
-                  : 'bg-white/95 text-[#111215] border-[#C7CBD1] hover:border-[#111215]'
-                  }`}
-              >
-                <span
-                  className="w-2 h-2 rounded-full inline-block shrink-0"
-                  style={{ backgroundColor: currentKnob.colorHex }}
-                />
-                <span className="font-bold text-[11px] whitespace-nowrap">04 // PERILLA CNC</span>
-                <span className="text-[10px] text-[#8C939E] font-normal">{currentKnob.name}</span>
-                <span className="text-[9px] text-[#1E40AF] font-bold">↗</span>
-              </button>
-            </div>
-          </Html>
-        </group>
-      )}
     </group>
   );
 }

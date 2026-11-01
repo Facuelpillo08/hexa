@@ -90,8 +90,8 @@ function StudioGroundShadow() {
     if (!shadowGroup.current) return;
     const progress = scrollProgressRef?.current ?? 0;
     const scrollMap = THREE.MathUtils.clamp((progress - 0.03) / 0.68, 0, 1);
-    const pOrbit = smoothInterval(scrollMap, 0.04, 0.72);
-    const pPan = smoothInterval(scrollMap, 0.58, 0.88);
+    const pOrbit = smoothInterval(scrollMap, 0.04, 0.70);
+    const pPan = smoothInterval(scrollMap, 0.55, 0.95);
 
     // Dynamic ground shadow Y tracking:
     // On mobile:

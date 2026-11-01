@@ -41,11 +41,8 @@ export default function Navbar() {
 
   return (
     <header
-      className={`fixed top-4 sm:top-5 left-1/2 -translate-x-1/2 z-50 transition-all duration-400 ease-out ${
-        isHidden
-          ? '-translate-y-28 opacity-0 pointer-events-none'
-          : 'translate-y-0 opacity-100 pointer-events-auto'
-      } w-auto max-w-[95vw]`}
+      id="main-navbar"
+      className="fixed top-4 sm:top-5 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 ease-out translate-y-0 opacity-100 pointer-events-auto w-auto max-w-[95vw] will-change-transform"
     >
       <div className="bg-[#111317] text-white px-4 sm:px-6 py-2 sm:py-2.5 rounded-full flex items-center gap-3 sm:gap-5 shadow-2xl border border-white/10 font-mono text-xs backdrop-blur-md">
         {/* Brand */}

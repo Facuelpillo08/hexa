@@ -26,8 +26,8 @@ export default function SmoothScroll({ children }) {
     };
 
     gsap.ticker.add(updateTicker);
-    // Smooth frame variance absorption (500ms threshold, 33ms lag recovery)
-    gsap.ticker.lagSmoothing(500, 33);
+    // Disable lag smoothing to prevent time-distortion micro-stutters during smooth scrolling
+    gsap.ticker.lagSmoothing(0);
 
     window.__lenis = lenis;
 

@@ -59,11 +59,19 @@ export default function HeroConfiguratorSection() {
     const applyScrollStyles = (progress) => {
       setScrollProgress(progress);
 
-      // Nav visibility toggle (only updates React state when boolean actually changes)
-      const shouldHideNav = progress > 0.05 && progress < 0.60;
-      if (shouldHideNav !== lastNavHidden.current) {
-        lastNavHidden.current = shouldHideNav;
-        setIsNavHidden(shouldHideNav);
+      // Nav visibility toggle (Zero-render direct DOM transform: no React context re-renders during scroll)
+      const shouldHideNav = progress > 0.05 && progress < 0.58;
+      const navEl = document.getElementById('main-navbar');
+      if (navEl) {
+        if (shouldHideNav) {
+          navEl.style.transform = 'translate3d(-50%, -100px, 0)';
+          navEl.style.opacity = '0';
+          navEl.style.pointerEvents = 'none';
+        } else {
+          navEl.style.transform = 'translate3d(-50%, 0, 0)';
+          navEl.style.opacity = '1';
+          navEl.style.pointerEvents = 'auto';
+        }
       }
 
       // Auto-reset manual exploded override when scrolling back towards hero
@@ -92,10 +100,10 @@ export default function HeroConfiguratorSection() {
         n75Ref.current.style.transform = `translate3d(${progress * 360}px, 0, 0)`;
       }
 
-      // Configurator glides in synchronously between 0.56 and 0.74
-      const configRaw = Math.min(1, Math.max(0, (progress - 0.56) / 0.18));
+      // Configurator glides in synchronously between 0.52 and 0.72
+      const configRaw = Math.min(1, Math.max(0, (progress - 0.52) / 0.20));
       const configOpacity = configRaw * configRaw * (3 - 2 * configRaw);
-      const configVisible = progress > 0.54;
+      const configVisible = progress > 0.50;
       const configTranslateY = (1 - configOpacity) * 20;
 
       if (configOverlayRef.current) {

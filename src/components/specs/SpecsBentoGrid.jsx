@@ -232,7 +232,7 @@ export default function SpecsBentoGrid() {
     <section
       id="componentes"
       ref={sectionRef}
-      className="relative border-b border-[#C7CBD1] bg-[#EDEAE4] overflow-hidden py-16 sm:py-24"
+      className="relative border-t border-b border-[#C7CBD1] bg-[#EDEAE4] overflow-hidden"
       style={{
         backgroundImage: `
           linear-gradient(to right, rgba(0, 0, 0, 0.035) 1px, transparent 1px),
@@ -241,12 +241,28 @@ export default function SpecsBentoGrid() {
         backgroundSize: '88px 88px',
       }}
     >
+      {/* Precision Architectural Dividing Line */}
+      <div className="w-full border-b border-[#C7CBD1] bg-[#E7E4DD] px-4 sm:px-8 lg:px-12 py-2.5 flex items-center justify-between font-mono text-[10px] text-[#525860] uppercase select-none relative z-10">
+        <div className="flex items-center gap-2">
+          <span className="w-1.5 h-1.5 bg-[#1E40AF]"></span>
+          <span className="font-bold text-[#111215]">HEXA // DIVISIÓN ESTRUCTURAL</span>
+          <span className="text-[#8C939E]">//</span>
+          <span>03 ESPECIFICACIONES TÉCNICAS</span>
+        </div>
+        <div className="hidden sm:flex items-center gap-4 text-[#8C939E]">
+          <span>CNC TOLERANCE ±0.01MM</span>
+          <span>//</span>
+          <span className="font-bold text-[#111215]">CAD BLUEPRINT</span>
+          <span className="text-[#1E40AF]">↓</span>
+        </div>
+      </div>
+
       {/* Monumental Watermark Numeral in Background */}
-      <div className="specs-watermark absolute right-4 sm:right-12 top-6 font-display font-black text-[120px] sm:text-[220px] lg:text-[280px] text-outline-monumental select-none pointer-events-none leading-none opacity-10 z-0 will-change-transform">
+      <div className="specs-watermark absolute right-4 sm:right-12 top-12 font-display font-black text-[120px] sm:text-[220px] lg:text-[280px] text-outline-monumental select-none pointer-events-none leading-none opacity-10 z-0 will-change-transform">
         02
       </div>
 
-      <div className="max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-12 relative z-10">
+      <div className="max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-12 relative z-10 pt-16 sm:pt-24 pb-16 sm:pb-24">
         {/* =========================================================================
             HEADER: Monumental Architectural Headline
             ========================================================================= */}
