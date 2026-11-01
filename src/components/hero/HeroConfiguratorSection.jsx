@@ -60,7 +60,7 @@ export default function HeroConfiguratorSection() {
       setScrollProgress(progress);
 
       // Nav visibility toggle (Zero-render direct DOM transform: no React context re-renders during scroll)
-      const shouldHideNav = progress > 0.05 && progress < 0.58;
+      const shouldHideNav = progress > 0.05 && progress < 0.65;
       const navEl = document.getElementById('main-navbar');
       if (navEl) {
         if (shouldHideNav) {
@@ -100,10 +100,10 @@ export default function HeroConfiguratorSection() {
         n75Ref.current.style.transform = `translate3d(${progress * 360}px, 0, 0)`;
       }
 
-      // Configurator glides in synchronously between 0.52 and 0.72
-      const configRaw = Math.min(1, Math.max(0, (progress - 0.52) / 0.20));
+      // Configurator glides in synchronously between 0.52 and 0.82
+      const configRaw = Math.min(1, Math.max(0, (progress - 0.52) / 0.30));
       const configOpacity = configRaw * configRaw * (3 - 2 * configRaw);
-      const configVisible = progress > 0.50;
+      const configVisible = progress > 0.48;
       const configTranslateY = (1 - configOpacity) * 20;
 
       if (configOverlayRef.current) {
@@ -165,7 +165,7 @@ export default function HeroConfiguratorSection() {
     <section
       id="configurador"
       ref={containerRef}
-      className="relative bg-[#EDEAE4] min-h-[360vh]"
+      className="relative bg-[#EDEAE4] min-h-[175vh]"
     >
       {/* Sticky 100vh Viewport Stage */}
       <div className="sticky top-0 h-screen w-full flex flex-col justify-between overflow-hidden">

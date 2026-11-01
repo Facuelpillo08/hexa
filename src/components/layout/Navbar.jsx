@@ -20,7 +20,7 @@ export default function Navbar() {
       const container = document.getElementById('configurador');
       if (container) {
         const maxScroll = container.offsetHeight - window.innerHeight;
-        const targetScroll = container.offsetTop + maxScroll * 0.75;
+        const targetScroll = container.offsetTop + maxScroll * 0.85;
         if (window.__lenis) {
           window.__lenis.scrollTo(targetScroll, { duration: 1.2 });
         } else {

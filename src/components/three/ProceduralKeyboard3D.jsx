@@ -506,8 +506,8 @@ export default function ProceduralKeyboard3D({
     // Read scroll progress directly from ref (zero React re-renders on scroll)
     const progress = scrollProgressRef?.current ?? 0;
 
-    // Staggered Cinematic Disassembly Sequence normalized across 360vh scroll (responsive docking by progress ~ 0.70)
-    const scrollMap = THREE.MathUtils.clamp((progress - 0.03) / 0.68, 0, 1);
+    // Staggered Cinematic Disassembly Sequence normalized across scroll (responsive docking by progress ~ 0.82)
+    const scrollMap = THREE.MathUtils.clamp((progress - 0.03) / 0.82, 0, 1);
 
     // Channel 1: Spatial Progress (always driven continuously by scroll, never frozen by override)
     // Responsive single-stage damping: lambda = 10.0 provides silky, immediate tracking without sluggish dragging
@@ -520,8 +520,8 @@ export default function ProceduralKeyboard3D({
     const sScroll = currentScrollAnim.current;
 
     // Channel 2: Physical Layer Elevation (Keycaps, Switches, Chassis, Knob)
-    // Only allow manual layer override when docked in the configurator (progress >= 0.55)
-    const isManualOverride = explodedOverride !== null && progress >= 0.55;
+    // Only allow manual layer override when docked in the configurator (progress >= 0.50)
+    const isManualOverride = explodedOverride !== null && progress >= 0.50;
     const targetExploded =
       progress < 0.04
         ? 0.0
@@ -555,12 +555,12 @@ export default function ProceduralKeyboard3D({
 
     // Pitch tilt during orbit so the bottom chassis & brass weight face camera cleanly at 180°:
     const backsideTilt = Math.sin(pOrbit * Math.PI) * 0.88;
-    const pDockRot = smoothInterval(sScroll, 0.55, 0.95);
+    const pDockRot = smoothInterval(sScroll, 0.48, 0.95);
     const targetRotX = 0.48 - backsideTilt + pDockRot * 0.04;
     const targetRotZ = THREE.MathUtils.lerp(0.11, 0.12, pDockRot);
 
     // 5. Lateral Pan towards left column for configurator docking (perfect lockstep with UI glide):
-    const pPan = smoothInterval(sScroll, 0.55, 0.95);
+    const pPan = smoothInterval(sScroll, 0.48, 0.95);
 
     // Responsive scaling:
     // Keyboard native width is ~8.5 units in 3D space.
