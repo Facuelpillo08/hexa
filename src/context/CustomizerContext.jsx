@@ -290,9 +290,12 @@ export function CustomizerProvider({ children }) {
 
   // Scroll lock: freeze Lenis and body scroll when preloader or any modal is open
   useEffect(() => {
-    if (isOrderModalOpen || isFreeViewOpen || isPreloaderActive) {
+    if (isOrderModalOpen || isFreeViewOpen) {
       if (window.__lenis) window.__lenis.stop();
       document.body.style.overflow = 'hidden';
+    } else if (isPreloaderActive) {
+      // Freeze smooth scroll without altering body overflow to avoid sudden scrollbar layout shift
+      if (window.__lenis) window.__lenis.stop();
     } else {
       if (window.__lenis) window.__lenis.start();
       document.body.style.overflow = '';

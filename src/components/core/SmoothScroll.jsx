@@ -31,12 +31,18 @@ export default function SmoothScroll({ children }) {
 
     window.__lenis = lenis;
 
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual';
+    }
+
     const params = new URLSearchParams(window.location.search);
     const initialScroll = params.get('scroll');
     if (initialScroll) {
       setTimeout(() => {
         lenis.scrollTo(parseFloat(initialScroll), { immediate: true });
       }, 400);
+    } else {
+      window.scrollTo(0, 0);
     }
 
     return () => {

@@ -163,31 +163,10 @@ export default function Preloader() {
         backgroundSize: '72px 72px',
       }}
     >
-      {/* CAD Registration Markers in Corners */}
-      <div className="absolute top-6 left-6 font-mono text-[9px] sm:text-[10px] text-[#64748B] tracking-wider uppercase pointer-events-none">
-        <span className="text-[#3B82F6] font-bold">+</span> 46.2044° N // GENEVA LABS
-      </div>
-      <div className="absolute top-6 right-6 font-mono text-[9px] sm:text-[10px] text-[#64748B] tracking-wider uppercase pointer-events-none">
-        SYS.INIT // <span className="text-[#F3F4F6] font-semibold">KX-75</span>
-      </div>
-      <div className="absolute bottom-6 left-6 font-mono text-[9px] sm:text-[10px] text-[#64748B] tracking-wider uppercase pointer-events-none">
-        CNC 6063 // GASKET ARCHITECTURE
-      </div>
-      <div className="absolute bottom-6 right-6 font-mono text-[9px] sm:text-[10px] text-[#64748B] tracking-wider uppercase pointer-events-none">
-        {progress < 100 ? (
-          <span className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#3B82F6] animate-ping" />
-            CALIBRANDO
-          </span>
-        ) : (
-          <span className="text-[#38BDF8] font-bold">READY // DESPLEGANDO</span>
-        )}
-      </div>
-
       {/* Main Architectural Stage */}
       <div className="flex flex-col items-center justify-center text-center px-4 max-w-5xl mx-auto w-full">
         {/* Colossal "HEXA" Typography with Individual Masked Characters */}
-        <div className="flex items-center justify-center gap-2 sm:gap-4 md:gap-6 mb-4 sm:mb-6">
+        <div className="flex items-center justify-center gap-2 sm:gap-4 md:gap-6 mb-5 sm:mb-7">
           {LETTERS.map((char, idx) => (
             <div
               key={idx}
@@ -210,7 +189,7 @@ export default function Preloader() {
           className="flex flex-col items-center justify-center will-change-[transform,opacity]"
         >
           {/* Sobriety 240px Progress Bar */}
-          <div className="w-56 sm:w-64 md:w-72 h-[2.5px] bg-white/10 rounded-full overflow-hidden mb-4 relative">
+          <div className="w-56 sm:w-64 md:w-72 h-[2.5px] bg-white/10 rounded-full overflow-hidden mb-5 relative">
             <div
               className="h-full bg-gradient-to-r from-[#1E40AF] via-[#3B82F6] to-[#38BDF8] transition-all duration-75 ease-out rounded-full"
               style={{ width: `${progress}%` }}
@@ -218,25 +197,8 @@ export default function Preloader() {
           </div>
 
           {/* Large Monospace Digital Percentage */}
-          <div className="font-mono text-3xl sm:text-4xl md:text-5xl font-bold tracking-widest text-[#F3F4F6] mb-3">
+          <div className="font-mono text-3xl sm:text-4xl md:text-5xl font-bold tracking-widest text-[#F3F4F6]">
             [ {String(progress).padStart(3, '0')}% ]
-          </div>
-
-          {/* Technical Status Caption */}
-          <div className="font-mono text-[9px] sm:text-[11px] uppercase tracking-widest text-[#94A3B8] flex items-center gap-2">
-            {progress < 100 ? (
-              <>
-                <span className="w-1.5 h-1.5 rounded-full bg-[#3B82F6] animate-pulse" />
-                <span>CALIBRANDO SISTEMA 3D // KX-75</span>
-              </>
-            ) : (
-              <>
-                <span className="w-1.5 h-1.5 rounded-full bg-[#38BDF8]" />
-                <span className="text-[#38BDF8] font-bold">
-                  SISTEMA LISTO // DESPLEGANDO HERO
-                </span>
-              </>
-            )}
           </div>
         </div>
       </div>

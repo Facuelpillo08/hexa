@@ -667,7 +667,12 @@ export default function ProceduralKeyboard3D({
   }, [switchKey, setActiveKeyPressed]);
 
   return (
-    <group ref={rootGroup} scale={[1.15, 1.15, 1.15]} position={[0, -0.2, 0]}>
+    <group
+      ref={rootGroup}
+      scale={[0.76, 0.76, 0.76]}
+      position={[0, -0.02, 0]}
+      rotation={[0.48, -0.46, 0.11]}
+    >
       {/* =========================================================================
           CAPA 1: Base Inferior y Chasis de Aluminio CNC (baseGroup)
           ========================================================================= */}

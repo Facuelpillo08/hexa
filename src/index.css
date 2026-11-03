@@ -11,6 +11,10 @@
   --accent-cobalt: #1E40AF;
 }
 
+html {
+  scrollbar-gutter: stable;
+}
+
 body {
   background-color: var(--bg-paper);
   color: var(--text-ink);
