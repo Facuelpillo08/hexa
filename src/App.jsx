@@ -1,6 +1,7 @@
 import React, { Suspense, lazy } from 'react';
 import SmoothScroll from './components/core/SmoothScroll';
 import { CustomizerProvider } from './context/CustomizerContext';
+import Preloader from './components/core/Preloader';
 import CustomCursor from './components/core/CustomCursor';
 import Navbar from './components/layout/Navbar';
 import HeroConfiguratorSection from './components/hero/HeroConfiguratorSection';
@@ -14,6 +15,9 @@ const Free360Modal = lazy(() => import('./components/customizer/Free360Modal'));
 export default function App() {
   return (
     <CustomizerProvider>
+      {/* Awwwards-style Brutalist Vector & Monospace Preloader */}
+      <Preloader />
+
       <SmoothScroll>
         <div className="min-h-screen bg-[#EFECE6] text-[#111215] font-sans selection:bg-[#1E40AF] selection:text-white relative">
           {/* Custom CAD Magnetic Cursor */}

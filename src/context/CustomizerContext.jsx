@@ -279,6 +279,8 @@ export function CustomizerProvider({ children }) {
   const [cartCount, setCartCount] = useState(1);
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   const [isFreeViewOpen, setIsFreeViewOpen] = useState(false);
+  const [isPreloaderActive, setIsPreloaderActive] = useState(true);
+  const [isSceneReady, setIsSceneReady] = useState(false);
   const [lastAudioTrigger, setLastAudioTrigger] = useState(Date.now());
   const [activeHotspot, setActiveHotspot] = useState('switches'); // 'base' | 'keycaps' | 'switches' | 'knob'
 
@@ -286,9 +288,9 @@ export function CustomizerProvider({ children }) {
     scrollProgressRef.current = val;
   };
 
-  // Modal scroll lock: freeze Lenis and body scroll when any modal is open
+  // Scroll lock: freeze Lenis and body scroll when preloader or any modal is open
   useEffect(() => {
-    if (isOrderModalOpen || isFreeViewOpen) {
+    if (isOrderModalOpen || isFreeViewOpen || isPreloaderActive) {
       if (window.__lenis) window.__lenis.stop();
       document.body.style.overflow = 'hidden';
     } else {
@@ -299,7 +301,7 @@ export function CustomizerProvider({ children }) {
       if (window.__lenis) window.__lenis.start();
       document.body.style.overflow = '';
     };
-  }, [isOrderModalOpen, isFreeViewOpen]);
+  }, [isOrderModalOpen, isFreeViewOpen, isPreloaderActive]);
 
   // Real physical keyboard listener with comprehensive edge-case protection
   useEffect(() => {
@@ -406,6 +408,10 @@ export function CustomizerProvider({ children }) {
         setIsOrderModalOpen,
         isFreeViewOpen,
         setIsFreeViewOpen,
+        isPreloaderActive,
+        setIsPreloaderActive,
+        isSceneReady,
+        setIsSceneReady,
         totalPrice,
         triggerSound,
         lastAudioTrigger,

@@ -393,6 +393,7 @@ export default function ProceduralKeyboard3D({
     triggerSound,
     activeHotspot,
     setActiveHotspot,
+    setIsSceneReady,
   } = useCustomizer();
 
   const { size } = useThree();
@@ -461,8 +462,20 @@ export default function ProceduralKeyboard3D({
   const currentPosX = useRef(0);
   const currentPosY = useRef(-0.02);
   const currentScale = useRef(0.76);
+  const sceneReadyRef = useRef(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (setIsSceneReady) setIsSceneReady(true);
+    }, 120);
+    return () => clearTimeout(timer);
+  }, [setIsSceneReady]);
 
   useFrame((_, delta) => {
+    if (!sceneReadyRef.current) {
+      sceneReadyRef.current = true;
+      if (setIsSceneReady) setIsSceneReady(true);
+    }
     // Consolidated keypress depression damping (zero per-key useFrame hooks)
     if (activeKeyPressed || activeKeyAnim.current.y < -0.001) {
       const targetY = activeKeyPressed ? -0.14 : 0;
