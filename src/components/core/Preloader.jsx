@@ -5,14 +5,14 @@ import { useCustomizer } from '../../context/CustomizerContext';
 export default function Preloader() {
   const { isSceneReady, setIsPreloaderActive } = useCustomizer();
   const [progress, setProgress] = useState(0);
-  const [typedText, setTypedText] = useState('');
   const [visible, setVisible] = useState(true);
 
   const containerRef = useRef(null);
-  const innerRef = useRef(null);
+  const lettersRef = useRef([]);
+  const subBlockRef = useRef(null);
   const hasFinishedRef = useRef(false);
 
-  const FULL_TITLE = 'HEXA // KX-75';
+  const LETTERS = ['H', 'E', 'X', 'A'];
 
   // Smooth cinematic progress counter (0 -> 100% across ~2.1 seconds)
   useEffect(() => {
@@ -33,13 +33,6 @@ export default function Preloader() {
 
       setProgress(easedProgress);
 
-      // Typewriter reveal: map progress (0-80%) to characters
-      const charIndex = Math.min(
-        FULL_TITLE.length,
-        Math.floor((rawProgress / 0.8) * FULL_TITLE.length)
-      );
-      setTypedText(FULL_TITLE.slice(0, Math.max(1, charIndex)));
-
       if (rawProgress < 1) {
         animFrameId = requestAnimationFrame(step);
       }
@@ -49,24 +42,56 @@ export default function Preloader() {
     return () => cancelAnimationFrame(animFrameId);
   }, []);
 
+  // Entrance animation: Staggered Mask Reveal
+  useEffect(() => {
+    if (!lettersRef.current.length || !subBlockRef.current) return;
+
+    // Reset initial states
+    gsap.set(lettersRef.current, { y: '120%', opacity: 0 });
+    gsap.set(subBlockRef.current, { opacity: 0, y: 25 });
+
+    const ctx = gsap.context(() => {
+      // Staggered letters emergence
+      gsap.to(lettersRef.current, {
+        y: '0%',
+        opacity: 1,
+        duration: 1.05,
+        stagger: 0.08,
+        ease: 'power4.out',
+        delay: 0.05,
+      });
+
+      // Sub-block reveal
+      gsap.to(subBlockRef.current, {
+        opacity: 1,
+        y: 0,
+        duration: 0.85,
+        delay: 0.35,
+        ease: 'power3.out',
+      });
+    });
+
+    return () => ctx.revert();
+  }, []);
+
   // Exit trigger when progress reaches 100% and Three.js confirms scene is ready
   useEffect(() => {
     if (progress < 100 || hasFinishedRef.current) return;
 
     // Safety timeout: if Three.js takes longer than 1.5s after 100%, trigger anyway
     let safetyTimer = setTimeout(() => {
-      triggerCurtainWipe();
+      triggerExit();
     }, 1500);
 
     if (isSceneReady) {
       clearTimeout(safetyTimer);
-      triggerCurtainWipe();
+      triggerExit();
     }
 
     return () => clearTimeout(safetyTimer);
   }, [progress, isSceneReady]);
 
-  const triggerCurtainWipe = () => {
+  const triggerExit = () => {
     if (hasFinishedRef.current) return;
     hasFinishedRef.current = true;
 
@@ -85,28 +110,44 @@ export default function Preloader() {
         },
       });
 
-      // Parallax upward shutter wipe
-      tl.to(innerRef.current, {
-        y: 50,
-        opacity: 0,
-        duration: 0.65,
-        ease: 'power3.in',
-      }, 0);
+      // 1. Letters disappear upward through their invisible mask
+      tl.to(
+        lettersRef.current,
+        {
+          y: '-125%',
+          duration: 0.55,
+          stagger: 0.04,
+          ease: 'power3.in',
+        },
+        0
+      );
 
-      tl.to(containerRef.current, {
-        yPercent: -100,
-        duration: 0.95,
-        ease: 'expo.inOut',
-      }, 0.15);
+      // 2. Sub-block fades and lifts
+      tl.to(
+        subBlockRef.current,
+        {
+          opacity: 0,
+          y: -30,
+          duration: 0.4,
+          ease: 'power2.in',
+        },
+        0.08
+      );
+
+      // 3. Main container curtain wipe up
+      tl.to(
+        containerRef.current,
+        {
+          yPercent: -100,
+          duration: 0.95,
+          ease: 'expo.inOut',
+        },
+        0.22
+      );
     }, 140);
   };
 
   if (!visible) return null;
-
-  // SVG stroke-dashoffset (1 -> 0 as progress goes 0% -> 75%)
-  const strokeOffset = Math.max(0, 1 - progress / 75);
-  // Fill opacity fades in smoothly between 70% and 100%
-  const fillAlpha = Math.min(1, Math.max(0, (progress - 70) / 30));
 
   return (
     <aside
@@ -144,83 +185,59 @@ export default function Preloader() {
       </div>
 
       {/* Main Architectural Stage */}
-      <div
-        ref={innerRef}
-        className="flex flex-col items-center justify-center text-center px-4 max-w-sm mx-auto will-change-[transform,opacity]"
-      >
-        {/* Animated Wireframe SVG Monogram */}
-        <div className="relative mb-6">
-          <svg
-            viewBox="0 0 256 256"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            className="w-24 h-24 sm:w-28 sm:h-28 drop-shadow-[0_0_25px_rgba(59,130,246,0.18)]"
-          >
-            {/* Left Pillar */}
-            <path
-              d="M 52 82 L 104 52 L 104 204 L 52 174 Z"
-              stroke="#F3F4F6"
-              strokeWidth="2.5"
-              strokeLinejoin="round"
-              pathLength="1"
-              strokeDasharray="1"
-              strokeDashoffset={strokeOffset}
-              fill="#F3F4F6"
-              fillOpacity={fillAlpha}
-              style={{ transition: 'fill-opacity 0.25s ease-out' }}
-            />
-
-            {/* Right Pillar */}
-            <path
-              d="M 152 52 L 204 82 L 204 174 L 152 204 Z"
-              stroke="#F3F4F6"
-              strokeWidth="2.5"
-              strokeLinejoin="round"
-              pathLength="1"
-              strokeDasharray="1"
-              strokeDashoffset={strokeOffset}
-              fill="#F3F4F6"
-              fillOpacity={fillAlpha}
-              style={{ transition: 'fill-opacity 0.25s ease-out' }}
-            />
-
-            {/* Mechanical Switch Stem Core (+) in Electric Cobalt */}
-            <path
-              d="M 120 104 H 136 V 120 H 152 V 136 H 136 V 152 H 120 V 136 H 104 V 120 H 120 Z"
-              stroke="#3B82F6"
-              strokeWidth="2.5"
-              strokeLinejoin="round"
-              pathLength="1"
-              strokeDasharray="1"
-              strokeDashoffset={strokeOffset}
-              fill="#1E40AF"
-              fillOpacity={fillAlpha}
-              style={{ transition: 'fill-opacity 0.25s ease-out' }}
-            />
-          </svg>
+      <div className="flex flex-col items-center justify-center text-center px-4 max-w-5xl mx-auto w-full">
+        {/* Colossal "HEXA" Typography with Individual Masked Characters */}
+        <div className="flex items-center justify-center gap-2 sm:gap-4 md:gap-6 mb-4 sm:mb-6">
+          {LETTERS.map((char, idx) => (
+            <div
+              key={idx}
+              className="overflow-hidden inline-flex items-center justify-center"
+            >
+              <span
+                ref={(el) => (lettersRef.current[idx] = el)}
+                className="inline-block font-display font-black text-[22vw] sm:text-[18vw] md:text-[15vw] leading-none text-[#F3F4F6] tracking-tight will-change-transform"
+                style={{ textShadow: '0 10px 40px rgba(0,0,0,0.8)' }}
+              >
+                {char}
+              </span>
+            </div>
+          ))}
         </div>
 
-        {/* Brand Lockup with Typewriter Effect */}
-        <div className="flex items-center justify-center font-display font-black text-xl sm:text-2xl tracking-widest uppercase text-[#F3F4F6] mb-2 min-h-[32px]">
-          <span>{typedText}</span>
-          <span className="text-[#3B82F6] font-mono text-lg ml-0.5 animate-pulse">▌</span>
-        </div>
+        {/* Sub-Hero Centered Block: Progress Bar & Large Monospace Counter */}
+        <div
+          ref={subBlockRef}
+          className="flex flex-col items-center justify-center will-change-[transform,opacity]"
+        >
+          {/* Sobriety 240px Progress Bar */}
+          <div className="w-56 sm:w-64 md:w-72 h-[2.5px] bg-white/10 rounded-full overflow-hidden mb-4 relative">
+            <div
+              className="h-full bg-gradient-to-r from-[#1E40AF] via-[#3B82F6] to-[#38BDF8] transition-all duration-75 ease-out rounded-full"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
 
-        <p className="font-mono text-[9px] sm:text-[10px] text-[#94A3B8] tracking-widest uppercase mb-7">
-          MODULAR KEYBOARD SYSTEM
-        </p>
+          {/* Large Monospace Digital Percentage */}
+          <div className="font-mono text-3xl sm:text-4xl md:text-5xl font-bold tracking-widest text-[#F3F4F6] mb-3">
+            [ {String(progress).padStart(3, '0')}% ]
+          </div>
 
-        {/* 1px Precision Calibration Bar */}
-        <div className="w-48 sm:w-56 h-[1.5px] bg-white/10 overflow-hidden relative mb-4 rounded-full">
-          <div
-            className="h-full bg-gradient-to-r from-[#1E40AF] via-[#3B82F6] to-[#38BDF8] transition-all duration-75 ease-out"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-
-        {/* Monospace Digital Percentage */}
-        <div className="font-mono text-xs sm:text-sm font-semibold tracking-widest text-[#94A3B8]">
-          [ {String(progress).padStart(3, '0')}% ]
+          {/* Technical Status Caption */}
+          <div className="font-mono text-[9px] sm:text-[11px] uppercase tracking-widest text-[#94A3B8] flex items-center gap-2">
+            {progress < 100 ? (
+              <>
+                <span className="w-1.5 h-1.5 rounded-full bg-[#3B82F6] animate-pulse" />
+                <span>CALIBRANDO SISTEMA 3D // KX-75</span>
+              </>
+            ) : (
+              <>
+                <span className="w-1.5 h-1.5 rounded-full bg-[#38BDF8]" />
+                <span className="text-[#38BDF8] font-bold">
+                  SISTEMA LISTO // DESPLEGANDO HERO
+                </span>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </aside>
